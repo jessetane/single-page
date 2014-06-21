@@ -3,7 +3,7 @@ module.exports = function (cb, opts) {
     window.addEventListener('popstate', onpopstate);
     
     function onpopstate () {
-        var href = window.location.pathname;
+        var href = window.location.pathname + window.location.search;
         page.show(href);
     }
     process.nextTick(onpopstate);
@@ -55,6 +55,6 @@ Page.prototype.push = function (href) {
 
 Page.prototype.pushHref = function (href) {
     this.current = href;
-    var mismatched = window.location.pathname !== href;
+    var mismatched = window.location.pathname + window.location.search !== href;
     if (mismatched) window.history.pushState(null, '', href);
 };
