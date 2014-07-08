@@ -8,9 +8,9 @@ module.exports = function (cb, opts) {
     }
     process.nextTick(onpopstate);
     
-    var fn = function (href) { return page.show(href) };
-    fn.push = function (href) { return page.push(href) };
-    fn.show = function (href) { return page.show(href) };
+    var fn = function (href, replace) { return page.show(href, replace) };
+    fn.push = function (href, replace) { return page.push(href, replace) };
+    fn.show = function (href, replace) { return page.show(href, replace) };
     return fn;
 };
 
@@ -25,7 +25,7 @@ function Page (cb, opts) {
     this.cb = cb;
 }
 
-Page.prototype.show = function (href) {
+Page.prototype.show = function (href, replace) {
     href = href.replace(/^\/+/, '/');
      
     if (this.current === href) return;
@@ -38,7 +38,7 @@ Page.prototype.show = function (href) {
         scrollY : scroll && scroll[1] || 0
     });
     
-    this.pushHref(href);
+    this.pushHref(href, replace);
 };
 
 Page.prototype.saveScroll = function (href) {
@@ -47,14 +47,21 @@ Page.prototype.saveScroll = function (href) {
     }
 };
 
-Page.prototype.push = function (href) {
+Page.prototype.push = function (href, replace) {
     href = href.replace(/^\/+/, '/');
     this.saveScroll(href);
-    this.pushHref(href);
+    this.pushHref(href, replace);
 };
 
-Page.prototype.pushHref = function (href) {
+Page.prototype.pushHref = function (href, replace) {
     this.current = href;
     var mismatched = window.location.pathname + window.location.search !== href;
-    if (mismatched) window.history.pushState(null, '', href);
+    if (mismatched) {
+        if (replace) {
+            window.history.replaceState(null, '', href);
+        }
+        else {
+            window.history.pushState(null, '', href);
+        }
+    }
 };
